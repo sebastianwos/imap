@@ -75,7 +75,7 @@ class Connection
             throw new MailboxDoesNotExistException($name);
         }
 
-        return new Mailbox($this->server . imap_utf7_encode($name), $this);
+        return new Mailbox($this->server . mb_convert_encoding($name, "UTF7-IMAP","UTF-8"), $this);
     }
 
     /**
@@ -98,10 +98,9 @@ class Connection
      */
     public function createMailbox($name)
     {
-        if (imap_createmailbox($this->resource, $this->server . $name)) {
+        if (imap_createmailbox($this->resource, $this->server . mb_convert_encoding($name, "UTF7-IMAP","UTF-8"))) {
             $this->mailboxNames = $this->mailboxes = null;
-
-            return $this->getMailbox($name);
+            return $this->getMailbox(mb_convert_encoding($name,"UTF-8",  "UTF7-IMAP"));
         }
 
         throw new Exception("Can not create '{$name}' mailbox at '{$this->server}'");
@@ -151,7 +150,8 @@ class Connection
         if (null === $this->mailboxNames) {
             $mailboxes = imap_getmailboxes($this->resource, $this->server, '*');
             foreach ($mailboxes as $mailbox) {
-                $this->mailboxNames[] = imap_utf7_decode(str_replace($this->server, '', $mailbox->name));
+                $name = mb_convert_encoding($mailbox->name, "UTF-8", "UTF7-IMAP");
+                $this->mailboxNames[] = str_replace($this->server, '', $name);
             }
         }
 

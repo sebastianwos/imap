@@ -32,7 +32,7 @@ class Mailbox implements \Countable, \IteratorAggregate
      */
     public function getName()
     {
-        return $this->name;
+        return mb_convert_encoding($this->name, "UTF-8", "UTF7-IMAP");
     }
 
     /**
